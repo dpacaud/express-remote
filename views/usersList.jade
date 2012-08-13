@@ -1,0 +1,9 @@
+extends layout
+
+block content
+	h1= title
+	p this is the #{title}
+	each user in userList
+		p #{user.userName}
+		p #{user.age}
+	h2 tata

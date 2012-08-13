@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	h1= title
+	p this is the #{title}
+	if user
+		p Nom : #{user.userName}
+		p Age : #{user.age}
+		p Email : #{user._id}
+	else if error
+		p Error Code : #{error.codigo}
+		p Error Message : #{error.message}

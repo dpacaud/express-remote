@@ -3,6 +3,7 @@ var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
 var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
+var userError = require ('../modules/userErrors.js')
 
 
 UserProvider = function(host, port, callback){
@@ -20,27 +21,29 @@ UserProvider.prototype.getCollection = function(callback) {
 	});	
 };
 
-UserProvider.prototype.findAll = function(callback) {
+UserProvider.prototype.findAll = function(response, callback) {
 	this.getCollection(function(error,user_collection){
 		if(error)
 			callback(error);
 		else {
 			user_collection.find().toArray(function(error, result){
 				if( error ) callback(error);
-	        	else callback(null, result);
+	        	else callback(null, result,response);
 			});	
 		}
 	});
 };
 
-UserProvider.prototype.findById = function(id,callback) {
+UserProvider.prototype.findById = function(id,response, callback) {
 	this.getCollection(function(error,user_collection){
 		if(error)
 			callback(error);
 		else {
+			console.log("findById : " + id);
 			user_collection.findOne({_id: id}, function(error, result){
 				if( error ) callback(error);
-	        	else callback(null, result);
+				else if(!result) callback(new userError(001,"No User found"), null, response);
+	        	else callback(null, result, response);
 			});	
 		}
 	});

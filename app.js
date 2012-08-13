@@ -9,24 +9,13 @@ var express = require('express')
   , path = require('path');
 
 var app = express();
-var UserProvider = require('./providers/user-providers.js').UserProvider;
-var userProvider = new UserProvider('127.0.0.1', 27017, function(err){
-  if(err)
-      console.log(err);
-    //else
-      //userProvider.save({userName:'toto', _id:"toto@yopmail.com", age:50 }, function(){});
-  }
-);
+//var UserProvider = require('./providers/user-providers.js').UserProvider;
 
-// This function gets all the users from DB and returns them as a JSON array in the response
-var getAllUsers = function(req, res){
-  userProvider.findAll(function(err,users) {
-    if(err)
-      res.send("error");
-    else
-        res.send(users);
-  }); 
-}
+//var userProvider = new UserProvider('127.0.0.1', 27017, function(err){
+//  if(err)
+//      console.log(err);
+//  }
+//);
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -47,28 +36,11 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-  //app.get('/', function(req, res) {
-  
-  //});
 
-
-// This is where we will handle Get request on a user ID
-  app.get('/user/serty2',function(req,res){
-    userProvider.findById('serty2@gmail.com', function(err,user){
-      if(err)
-        res.send("erorr");
-      else
-          res.send(user);
-    });
-  });
-
-  app.get('/users',getAllUsers);
+app.get('/user/:tata' , routes.getUser);
+app.get('/users' , routes.getUserList);
 
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
-
-
-
-
