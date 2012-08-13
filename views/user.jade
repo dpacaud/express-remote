@@ -2,11 +2,68 @@ extends layout
 
 block content
 	h1= title
-	p this is the #{title}
 	if user
-		p Nom : #{user.userName}
-		p Age : #{user.age}
-		p Email : #{user._id}
+		p 
+			unless isEdit
+				a(href='/user/'+user._id+'/edit') edit 
+			else
+				a(href='/user/'+user._id) back 
+
+			form(name='userForm',action='/user/'+user._id ,method='POST')
+				table
+					tr
+						td Email :	
+						td #{user.email}
+					tr
+						td Name :	
+						td 
+							input(type='text', size='50', name='name', value = user.name, disabled=!isEdit)
+					tr
+						td First name :		
+						td
+							input(type='text', size='50', name='firstName', value = user.firstName, disabled=!isEdit)
+					if isEdit
+						tr
+							td(colspan='2')
+								input(type='submit',value='Ok')
+			hr
+			unless isEdit
+				if user.presentations
+					p Liste des pr&eacute;sentations
+					each prez in user.presentations
+						table
+							tr
+								td Name :	
+								td 
+									input(type='text', size='50', name='name', value = prez.name, disabled)
+							tr
+								td type :	
+								td 
+									input(type='text', size='50', name='type', value = prez.type, disabled)
+							tr
+								td content :		
+								td
+									textarea(style='width:600px;height:280px;', name='content', disabled)
+										!{prez.content}
+					hr
+				p Ajouter une pr&eacute;sentation
+				form(name='presentationForm', action='/user/'+user._id+'/presentation', method='POST')
+					table
+						tr
+							td Name :	
+							td 
+								input(type='text', size='50', name='name')
+						tr
+							td type :	
+							td 
+								input(type='text', size='50', name='type')
+						tr
+							td content :		
+							td
+								textarea(style='width:600px;height:280px;', name='content')
+						tr
+							td(colspan='2')
+								input(type='submit',value='Ok')
 	else if error
-		p Error Code : #{error.codigo}
+		p Error Code : #{error.code}
 		p Error Message : #{error.message}

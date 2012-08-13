@@ -1,0 +1,21 @@
+extends layout
+
+block content
+	h1= title
+	form(name='userForm',action='/user',method='POST')
+		table
+			tr
+				td Email :	
+				td 
+					input(type='text', size='50', name='email')
+			tr
+				td Name :	
+				td 
+					input(type='text', size='50', name='name')
+			tr
+				td First name :		
+				td
+					input(type='text', size='50', name='firstName')
+			tr
+				td(colspan='2')
+					input(type='submit',value='Ok')

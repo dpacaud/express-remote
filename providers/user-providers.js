@@ -1,13 +1,13 @@
 var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
-var BSON = require('mongodb').BSON;
-var ObjectID = require('mongodb').ObjectID;
+//var BSON = require('mongodb').BSON;
+//var ObjectID = require('mongodb').ObjectID;
 var userError = require ('../modules/userErrors.js')
-
+var userModel = require('../models/user');
 
 UserProvider = function(host, port, callback){
-	this.db = new Db('remoteImpress', new Server(host,port, {auto_reconnet: true},{}));
+	this.db = new Db('remoteImpress', new Server(host,port, {auto_reconnect: true},{}));
 	this.db.open(function(err, db){
 			callback(err);
 	});
@@ -24,46 +24,82 @@ UserProvider.prototype.getCollection = function(callback) {
 UserProvider.prototype.findAll = function(response, callback) {
 	this.getCollection(function(error,user_collection){
 		if(error)
-			callback(error);
+			callback(error,result,response);
 		else {
 			user_collection.find().toArray(function(error, result){
-				if( error ) callback(error);
-	        	else callback(null, result,response);
+				 callback(error,result,response);
 			});	
 		}
 	});
 };
 
-UserProvider.prototype.findById = function(id,response, callback) {
-	this.getCollection(function(error,user_collection){
+UserProvider.prototype.findById = function(id,response, options, callback) {
+	this.getCollection(function(error, user_collection){
 		if(error)
 			callback(error);
 		else {
-			console.log("findById : " + id);
 			user_collection.findOne({_id: id}, function(error, result){
-				if( error ) callback(error);
-				else if(!result) callback(new userError(001,"No User found"), null, response);
-	        	else callback(null, result, response);
+				// If we did not find a result and there is no error, we create an error to display
+				if(!result && !error) error = new userError(001,"No User found");
+				// In all cases, we callback
+	        	callback(error, result, response, options);
 			});	
 		}
 	});
 };
+
 //This method saves a user into DB
-UserProvider.prototype.save = function(user,callback) {
+UserProvider.prototype.save = function(user, response, callback) {
 	this.getCollection(function(error,user_collection) {
 		if(error)
-			callback(error);
+			callback(error,user,response);
 		else {
-			//console.dir(user_collection);
-			//console.log(typeof user_collection);
-			//console.log(typeof user);
 			user.created_at = new Date();
-			user_collection.insert(user,{safe:true},function(errors, user) {
-				if(errors)
-					console.log(errors);
+			user_collection.insert(user,{safe:true},function(error, user_array) {
+				if(error){
+					console.log(error);
+					if(error.code == 11000) 
+						error = new userError(002 , "A user already exists with this id");
+				}
+				//The insert method returns an array even if there is only one record inserted
+				//Since we know there is only one user inserted at a time, we can *safely* pass array[0] to the callback
+				callback(error, user_array ? user_array[0] : user_array, response);
 			});
 		}
 	});
 };
+
+UserProvider.prototype.update = function(user, response, callback) {
+	this.getCollection(function(error,user_collection) {
+		if(error)
+			callback(error, user, response);
+		else {
+			user.last_updated = new Date();
+			user_collection.save(user, {safe:true}, function(error) {
+				if(error){
+					console.log(error);
+				}
+				callback(error, user, response);
+			});
+		}
+	});
+};
+
+UserProvider.prototype.addNewPresentation = function(user, response, callback) {
+	this.getCollection(function(error,user_collection) {
+		if(error)
+			callback(error, user, response);
+		else {
+			user.last_updated = new Date();
+			user_collection.save(user, {safe:true}, function(error) {
+				if(error){
+					console.log(error);
+				}
+				callback(error, user, response);
+			});
+		}
+	});
+};
+
 
 exports.UserProvider = UserProvider;
