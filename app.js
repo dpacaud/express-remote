@@ -10,20 +10,35 @@ var express = require('express')
 
 var app = express();
 
-var userModel = require('./models/user');
+/*var userModel = require('./models/user');
 var user = new userModel("ohohudzdzh","testName", "testFirstName");
 
 user.presentations = [{name : 'Prez 1', content:'<html></html>', type:'impress'}]
 
 var UserProvider = require('./providers/user-providers.js').UserProvider;
-
+var utils = require('./modules/utils.js');
 var userProvider = new UserProvider('127.0.0.1', 27017, function(err){
     if(err)
       console.log(err);
     else
-      userProvider.save(user, null,function(err) {if(err) console.log(err);})
+      userProvider.getPresentationByUserIdAndPresensationKey(user, 'DHGFFFCIEBBddddd',null,function(err,presentation,user,resp) {
+        if(err) console.log(err);
+        else {
+          console.log(presentation);
+        }
+
+      });
   }
-);
+);*/
+
+
+/*
+var utils = require('./modules/utils.js');
+for(i = 0; i < 100; i++){
+  console.log(utils.getKey());
+}
+*/
+
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -58,6 +73,18 @@ app.post('/user/:id',routes.updateUser);
 
 //Handling presentations Routes
 app.post('/user/:id/presentation',routes.addPresentation);
+
+
+app.get('/user/:id/presentation/css/:filename', function(req,res) {
+  res.redirect('/stylesheets/'+req.params.filename);
+});
+
+app.get('/user/:id/presentation/scripts/:filename', function(req,res) {
+  res.redirect('/javascripts/'+req.params.filename);
+});
+
+app.get('/user/:id/presentation/:key', routes.getPresentation);
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

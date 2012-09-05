@@ -1,6 +1,7 @@
 var UserProvider = require('../providers/user-providers.js').UserProvider;
 var PresentationProvider = require('../providers/presentation-provider.js').PresentationProvider;
 var userModel = require('../models/user');
+var utils = require('../modules/utils.js');
 
 /*
  * GET home page.
@@ -68,12 +69,24 @@ exports.addPresentation = function(req,res) {
   userProvider.findById(req.params.id, res, {edit:true},function(err, user){
     if(err) renderUser(err);
     else {
+      //Let's add a key to the presentation to make it easier to find
+      _key = utils.getKey(25);
+      console.log(_key);
       if(user.presentations)
-        user.presentations.push({name : req.body.name, content:req.body.content, type:req.body.type});
+        user.presentations.push({name : req.body.name, content:req.body.content, type:req.body.type, key : _key});
       else
-        user.presentations = new Array({name : req.body.name, content:req.body.content, type:req.body.type});
-      
+        user.presentations = new Array({name : req.body.name, content:req.body.content, type:req.body.type , key : _key});
+
       userProvider.update(user,res,renderUser);
+    }
+  });
+}
+
+exports.getPresentation = function(req,res) {
+  userProvider.findById(req.params.id, res, {edit:true},function(err, user, resp){
+    if(err) renderUser(err);
+    else {
+      userProvider.getPresentationByUserIdAndPresensationKey(user,req.params.key,resp,renderPresentation);
     }
   });
 }
@@ -91,3 +104,9 @@ function renderUser(err, _user, res, options){
 function renderUserList(err, _userList, res){
       res.render('usersList', {title : 'User List', userList : _userList,error : err});
 }
+
+function renderPresentation(err,presentation,user,res) {
+      res.render('presentation',{prez:presentation})
+}
+
+

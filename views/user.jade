@@ -41,10 +41,12 @@ block content
 								td 
 									input(type='text', size='50', name='type', value = prez.type, disabled)
 							tr
-								td content :		
-								td
-									textarea(style='width:600px;height:280px;', name='content', disabled)
-										!{prez.content}
+								td(colspan='2')
+									a(href='/user/'+user._id+'/presentation/'+prez.key) presentation
+								//td content :		
+								//td
+								//	textarea(style='width:600px;height:280px;', name='content', disabled)
+								//		!{prez.content}
 					hr
 				p Ajouter une pr&eacute;sentation
 				form(name='presentationForm', action='/user/'+user._id+'/presentation', method='POST')

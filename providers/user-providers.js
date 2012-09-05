@@ -85,6 +85,48 @@ UserProvider.prototype.update = function(user, response, callback) {
 	});
 };
 
+UserProvider.prototype.getPresentationByUserIdAndPresensationKey = function(user, presentationKey , response, callback) {
+	this.getCollection(function(error,user_collection) {
+		if(error)
+			callback(error);
+		else {
+			user_collection.find({_id:user._id},['presentations'], function(error, cursor) {
+				if(error){
+					console.log(error);
+				}
+				else {
+					cursor.nextObject(function(err,obj){
+						if(err) {
+							console.log(err);
+							callback(err);
+						}
+						else {
+							presentations = obj.presentations;
+							
+							if(Array.isArray(presentations)){
+								var i = 0;
+								var found = false;
+								for(i=0;i<presentations.length;i++){
+									if(presentations[i].key == presentationKey){
+										found =  true;
+										callback(err,presentations[i],user,response)
+									}
+								}
+								if(!found)
+									callback("no such presentation Key for user with id : " + user._id);	
+							}
+							else {
+								callback("presentation object is not an Array, this is pretty serious and should be investigated");	
+							}
+						}
+					});
+				}
+				//callback(error, user, response);
+			});
+		}
+	});
+}
+
 UserProvider.prototype.addNewPresentation = function(user, response, callback) {
 	this.getCollection(function(error,user_collection) {
 		if(error)
